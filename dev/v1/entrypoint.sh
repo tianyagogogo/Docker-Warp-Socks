@@ -4,24 +4,20 @@ set -e
 sleep 3
 
 _NET_DEV=warp
-_NET_PORT=9091
-
 NET_DEV="${NET_DEV:-$_NET_DEV}"
-NET_PORT="${NET_PORT:-$_NET_PORT}"
-
 _WG_CONF="/etc/wireguard"
 _IFACE=$(ip route show default | awk '{print $5}')
 
 if [ ! -e "/opt/wgcf-profile.conf" ]; then
-    _IPv4=$(ip addr show dev "$_IFACE" | awk '/inet /{print $2; exit}' | cut -d' ' -f2)
-    _IPv6=$(ip addr show dev "$_IFACE" | awk '/inet6 /{print $2; exit}' | cut -d' ' -f2)
+    _IPv4=$(ip addr show dev "$_IFACE" | awk '/inet /{print $2}' | cut -d' ' -f2)
+    _IPv6=$(ip addr show dev "$_IFACE" | awk '/inet6 /{print $2}' | cut -d' ' -f2)
 
     TAR="https://api.github.com/repos/ViRb3/wgcf/releases/latest"
     case $(arch) in
         x86_64) _ARCH="amd64" ;;
+        armv7l) _ARCH="armhf" ;;
         aarch64) _ARCH="arm64" ;;
         s390x) _ARCH="s390x" ;;
-        armv7l) _ARCH="armv7" ;;
         *) echo "Unsupported architecture"; exit 1 ;;
     esac
     URL=$(curl -fsSL ${TAR} | grep 'browser_download_url' | cut -d'"' -f4 | grep linux | grep "${_ARCH}")
@@ -37,7 +33,7 @@ if [ ! -e "/opt/danted.conf" ]; then
 
 cat <<EOF | tee /opt/danted.conf
 logoutput: stderr
-internal: 0.0.0.0 port=$NET_PORT
+internal: 0.0.0.0 port=9091
 external: $NET_DEV
 
 user.unprivileged: nobody

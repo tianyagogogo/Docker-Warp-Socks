@@ -15,7 +15,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Clean Table
         run:
@@ -27,7 +27,7 @@ jobs:
         name: Create Proxy
         shell: bash
         run: |
-          curl -fsSL bit.ly/warp_socks | bash -s linux/arm64 ${{ matrix.arch }}
+          curl -fsSL bit.ly/warp_socks | sh -s -- "warp_socks" ${{ matrix.arch }} "1" "9091"
           date && sleep 60 && docker ps -a && date && docker logs warp_socks
 
       - name: Check proxy status
